@@ -14,7 +14,7 @@ type zoneAddr struct {
 	Protocol string // dns, tls or grpc (not implemented)
 }
 
-// String return z.Zone + ":" + z.Port as a string.
+// String return z.Procol + "://" + z.Zone + ":" + z.Port as a string.
 func (z zoneAddr) String() string { return z.Protocol + "://" + z.Zone + ":" + z.Port }
 
 // Protocol returns the protocol of the string s
