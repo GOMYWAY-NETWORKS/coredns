@@ -27,9 +27,6 @@ type Config struct {
 	// TLSConfig when listening for encrypted connections (gRPC, DNS-over-TLS).
 	TLSConfig string
 
-	// Server is the server that handles this config
-	Server *Server
-
 	// Middleware stack.
 	Middleware []middleware.Middleware
 

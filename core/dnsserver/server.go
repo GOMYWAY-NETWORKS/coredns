@@ -65,7 +65,6 @@ func NewServer(addr string, group []*Config) (*Server, error) {
 			stack = site.Middleware[i](stack)
 		}
 		site.middlewareChain = stack
-		site.Server = s // this can be removed
 	}
 
 	return s, nil
