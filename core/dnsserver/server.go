@@ -65,7 +65,7 @@ func NewServer(addr string, group []*Config) (*Server, error) {
 			stack = site.Middleware[i](stack)
 		}
 		site.middlewareChain = stack
-		site.Server = s
+		site.Server = s // this can be removed
 	}
 
 	return s, nil
@@ -93,7 +93,7 @@ func (s *Server) ServePacket(p net.PacketConn) error {
 
 // Listen implements caddy.TCPServer interface.
 func (s *Server) Listen() (net.Listener, error) {
-	l, err := net.Listen("tcp", s.Addr)
+	l, err := net.Listen("tcp", s.Addr[len(ProtoDNS+"://"):])
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (s *Server) Listen() (net.Listener, error) {
 
 // ListenPacket implements caddy.UDPServer interface.
 func (s *Server) ListenPacket() (net.PacketConn, error) {
-	p, err := net.ListenPacket("udp", s.Addr)
+	p, err := net.ListenPacket("udp", s.Addr[len(ProtoDNS+"://"):])
 	if err != nil {
 		return nil, err
 	}

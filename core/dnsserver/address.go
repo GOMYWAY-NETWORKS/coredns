@@ -9,12 +9,24 @@ import (
 )
 
 type zoneAddr struct {
-	Zone string
-	Port string
+	Zone     string
+	Port     string
+	Protocol string // dns, dns-tls or dns-grpc
 }
 
 // String return z.Zone + ":" + z.Port as a string.
-func (z zoneAddr) String() string { return z.Zone + ":" + z.Port }
+func (z zoneAddr) String() string { return z.Protocol + "://" + z.Zone + ":" + z.Port }
+
+// Protocol returns the protocol of the string s
+func Protocol(s string) string {
+	switch {
+	case strings.HasPrefix(s, ProtoTLS+"://"):
+		return ProtoTLS
+	case strings.HasPrefix(s, ProtoDNS+"://"):
+		return ProtoDNS
+	}
+	return ProtoDNS
+}
 
 // normalizeZone parses an zone string into a structured format with separate
 // host, and port portions, as well as the original input string.
@@ -23,7 +35,18 @@ func (z zoneAddr) String() string { return z.Zone + ":" + z.Port }
 func normalizeZone(str string) (zoneAddr, error) {
 	var err error
 
-	// separate host and port
+	proto := ProtoDNS
+
+	switch {
+	case strings.HasPrefix(str, ProtoTLS+"://"):
+		proto = ProtoTLS
+		str = str[len(ProtoTLS+"://"):]
+	case strings.HasPrefix(str, ProtoDNS+"://"):
+		proto = ProtoDNS
+		str = str[len(ProtoDNS+"://"):]
+		// error if nothing matches? TODO
+	}
+
 	host, port, err := net.SplitHostPort(str)
 	if err != nil {
 		host, port, err = net.SplitHostPort(str + ":")
@@ -39,8 +62,21 @@ func normalizeZone(str string) (zoneAddr, error) {
 	}
 
 	if port == "" {
-		port = Port
+		if proto == ProtoDNS {
+			port = Port
+		}
+		if proto == ProtoTLS {
+			port = TLSPort
+		}
 	}
 
-	return zoneAddr{Zone: strings.ToLower(dns.Fqdn(host)), Port: port}, err
+	return zoneAddr{Zone: strings.ToLower(dns.Fqdn(host)), Port: port, Protocol: proto}, err
 }
+
+// Support protocols
+const (
+	ProtoDNS = "dns"
+	ProtoTLS = "tls"
+
+//	ProtogRPC = "grpc"
+)
