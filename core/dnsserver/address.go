@@ -11,7 +11,7 @@ import (
 type zoneAddr struct {
 	Zone     string
 	Port     string
-	Protocol string // dns, dns-tls or dns-grpc
+	Protocol string // dns, tls or grpc (not implemented)
 }
 
 // String return z.Zone + ":" + z.Port as a string.
